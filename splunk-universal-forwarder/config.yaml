@@ -1,0 +1,42 @@
+name: Splunk Universal Forwarder
+version: "1.2.0"
+slug: splunk_universal_forwarder
+description: Runs a Splunk Universal Forwarder to ship logs to your Splunk deployment.
+url: https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME
+arch:
+  - amd64
+  - aarch64
+
+startup: services
+boot: auto
+
+# Pre-built multi-arch image (amd64 + arm64 manifest) from GitHub Container Registry.
+# Replace YOUR_GITHUB_USERNAME/YOUR_REPO_NAME to match your fork.
+image: "ghcr.io/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/splunk-universal-forwarder"
+
+ports:
+  9997/tcp: 9997
+ports_description:
+  9997/tcp: >-
+    Splunk TCP input port (receiving data from other forwarders or syslog
+    sources). Must match the 'tcp_port' option below.
+
+options:
+  deployment_server: ""
+  tcp_listen: false
+  tcp_port: 9997
+  splunk_password: "ChangeMe1!"
+
+schema:
+  deployment_server: str
+  tcp_listen: bool
+  tcp_port: int
+  splunk_password: str
+
+map:
+  - config:rw
+
+tmpfs:
+  - /tmp
+
+panel_icon: mdi:magnify-scan

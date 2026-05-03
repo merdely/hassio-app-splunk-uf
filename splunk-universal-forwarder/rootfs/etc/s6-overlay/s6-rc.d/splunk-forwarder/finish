@@ -1,0 +1,17 @@
+#!/command/with-contenv bash
+# shellcheck shell=bash
+# s6-rc longrun: finish script
+# Called by s6 when the run script exits (clean shutdown or crash).
+# Arguments:
+#   $1  – exit code from the run script  (or 256 if killed by a signal)
+#   $2  – signal number that caused death (-1 if run exited on its own)
+
+SPLUNK_HOME="/opt/splunkforwarder"
+EXIT_CODE="${1}"
+SIGNAL="${2}"
+
+echo "[s6-rc/splunk-forwarder] splunkd exited (code=${EXIT_CODE}, signal=${SIGNAL}) – stopping Splunk…"
+
+"${SPLUNK_HOME}/bin/splunk" stop 2>/dev/null || true
+
+echo "[s6-rc/splunk-forwarder] Splunk stopped."

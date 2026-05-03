@@ -1,0 +1,16 @@
+#!/command/with-contenv bash
+# shellcheck shell=bash
+# s6-rc longrun: run script
+# Executed by s6-rc after cont-init.d scripts have completed.
+# Must exec a process that stays in the foreground; s6 supervises it and
+# will restart it (or bring down the container) if it exits unexpectedly.
+set -euo pipefail
+
+SPLUNK_HOME="/opt/splunkforwarder"
+
+echo "[s6-rc/splunk-forwarder] Starting splunkd in foreground…"
+
+# Run splunkd directly (no daemonisation).
+# cont-init.d/10-splunk-config.sh has already accepted the licence and
+# written all config files, so splunkd can start cleanly here.
+exec "${SPLUNK_HOME}/bin/splunkd" service 2>&1
