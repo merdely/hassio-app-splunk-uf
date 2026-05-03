@@ -35,10 +35,10 @@ jobs:
       # QEMU enables arm64 emulation on the amd64 GitHub-hosted runner.
       # The splunk/universalforwarder base image is a multi-arch manifest, so
       # buildx will pull the correct variant for each target platform automatically.
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v3
+      #   with:
+      #     platforms: linux/amd64,linux/arm64
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -82,7 +82,7 @@ jobs:
         with:
           context: ./splunk-universal-forwarder
           file: ./splunk-universal-forwarder/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64  # ,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
