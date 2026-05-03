@@ -1,18 +1,15 @@
 name: Splunk Universal Forwarder
-version: "1.2.0"
+version: "10.2.3"
 slug: splunk_universal_forwarder
 description: Runs a Splunk Universal Forwarder to ship logs to your Splunk deployment.
-url: https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME
+url: https://github.com/merdely/hassio-app-splunk-uf
 arch:
   - amd64
-  - aarch64
 
 startup: services
 boot: auto
 
-# Pre-built multi-arch image (amd64 + arm64 manifest) from GitHub Container Registry.
-# Replace YOUR_GITHUB_USERNAME/YOUR_REPO_NAME to match your fork.
-image: "ghcr.io/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/splunk-universal-forwarder"
+image: "ghcr.io/merdely/hassio-app-splunk-uf/splunk-universal-forwarder"
 
 ports:
   9997/tcp: 9997

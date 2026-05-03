@@ -1,6 +1,6 @@
 # Splunk Universal Forwarder — Home Assistant Add-on Repository
 
-[![Build & Publish Add-on](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/actions/workflows/build.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/actions/workflows/build.yml)
+[![Build & Publish Add-on](https://github.com/merdely/hassio-app-splunk-uf/actions/workflows/build.yml/badge.svg)](https://github.com/merdely/hassio-app-splunk-uf/actions/workflows/build.yml)
 
 Home Assistant add-on repository for the **Splunk Universal Forwarder**.
 
@@ -20,7 +20,7 @@ Supported architectures: **amd64** · **aarch64 (arm64)**
 
 ### 1. Fork / clone and replace placeholders
 
-Find-and-replace `YOUR_GITHUB_USERNAME/YOUR_REPO_NAME` in:
+Find-and-replace `merdely/hassio-app-splunk-uf` in:
 
 - `repository.yaml`
 - `splunk-universal-forwarder/config.yaml`
@@ -31,7 +31,7 @@ GitHub Actions builds a multi-arch manifest (`linux/amd64` + `linux/arm64`)
 and publishes it to:
 
 ```
-ghcr.io/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/splunk-universal-forwarder:latest
+ghcr.io/merdely/hassio-app-splunk-uf/splunk-universal-forwarder:latest
 ```
 
 ### 3. Make the package public
