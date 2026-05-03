@@ -1,0 +1,94 @@
+name: Build & Publish Add-on
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "splunk-universal-forwarder/**"
+      - ".github/workflows/build.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "splunk-universal-forwarder/**"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/splunk-universal-forwarder
+
+jobs:
+  build-and-push:
+    name: Build & Push Multi-Arch Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # QEMU enables arm64 emulation on the amd64 GitHub-hosted runner.
+      # The splunk/universalforwarder base image is a multi-arch manifest, so
+      # buildx will pull the correct variant for each target platform automatically.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read add-on version
+        id: addon_version
+        run: |
+          VERSION=$(grep '^version:' splunk-universal-forwarder/config.yaml \
+                    | awk '{print $2}' | tr -d '"')
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Add-on version: ${VERSION}"
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ steps.addon_version.outputs.version }},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=semver,pattern={{version}},event=release
+            type=semver,pattern={{major}}.{{minor}},event=release
+            type=sha,format=short
+
+      # buildx builds both platforms in one pass and pushes a single multi-arch
+      # manifest to GHCR.  Home Assistant pulls the correct variant by arch.
+      # No per-arch build-args needed: the Dockerfile has no arch-specific logic
+      # (unlike the s6 approach) — microdnf and the Splunk entrypoint handle
+      # everything natively.
+      - name: Build and push multi-arch image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./splunk-universal-forwarder
+          file: ./splunk-universal-forwarder/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Image digest
+        if: github.event_name != 'pull_request'
+        run: echo "Published → ${{ steps.build.outputs.digest }}"
